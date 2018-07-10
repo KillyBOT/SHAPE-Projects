@@ -7,7 +7,7 @@ COMS W4701 Artificial Intelligence - Programming Homework 2
 An AI player for Othello. This is the template file that you need to  
 complete and submit. 
 
-@author: YOUR NAME AND UNI 
+@author: Kyle 2115
 """
 
 import random
