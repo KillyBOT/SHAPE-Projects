@@ -44,13 +44,10 @@ def compute_utility(board, color):
                     white += 1
                 if row == len(board) and column == len(board[row]):
                     black += 1
-            else:
-                empty += 1
-
     if color == 1:
-        return black - white - empty
+        return black - white
     elif color == 2:
-        return white - black - empty
+        return white - black
 
 ############ MINIMAX ###############################
 
