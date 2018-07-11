@@ -127,16 +127,22 @@ class OthelloGui(object):
 
 def main():
     
-    if len(sys.argv) == 3:
-        p1 = AiPlayerInterface(sys.argv[1],1)
-        p2 = AiPlayerInterface(sys.argv[2],2)
-    elif len(sys.argv) == 2:
+    if len(sys.argv) == 4:
+        game = OthelloGameManager(dimension=int(sys.argv[1]))
+        p1 = AiPlayerInterface(sys.argv[2],1)
+        p2 = AiPlayerInterface(sys.argv[3],2)
+    elif len(sys.argv) == 3:
+        game = OthelloGameManager(dimension=int(sys.argv[1]))
         p1 = Player(1)
-        p2 = AiPlayerInterface(sys.argv[1],2)
-    else: 
+        p2 = AiPlayerInterface(sys.argv[2],2)
+    elif len(sys.argv) == 2: 
         p1 = Player(1)
         p2 = Player(2)
-    game = OthelloGameManager(dimension=6)
+        game = OthelloGameManager(dimension=int(sys.argv[1]))
+    else:
+        p1 = Player(1)
+        p2 = Player(2)
+        game = OthelloGameManager(dimension=8)
     gui = OthelloGui(game, p1, p2) 
     gui.run()
 

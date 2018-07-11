@@ -26,6 +26,7 @@ def compute_utility(board, color):
         for column in range(len(board[row])):
             if board[row][column] == 1:
                 black += 1
+                
                 if row == 0 and column == 0:
                     black += 1
                 if row == len(board)-1 and column == 0:
@@ -60,9 +61,11 @@ def compute_utility(board, color):
                     black -= 1
                 if row == len(board) - 2 and column == len(board[row])-1:
                     black -= 1
+            
 
             elif board[row][column] == 2:
                 white += 1
+                
                 if row == 0 and column == 0:
                     white += 1
                 if row == len(board) and column == 0:
@@ -97,6 +100,7 @@ def compute_utility(board, color):
                     white -= 1
                 if row == len(board) - 2 and column == len(board[row])-1:
                     white -= 1
+                    
     if color == 1:
         return black - white
     elif color == 2:
