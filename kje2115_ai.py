@@ -100,6 +100,11 @@ def compute_utility(board, color):
                     white -= 1
                 if row == len(board) - 2 and column == len(board[row])-1:
                     white -= 1
+
+    for x in get_possible_moves(board, 1):
+        black += 1
+    for x in get_possible_moves(board, 2):
+        white += 1
                     
     if color == 1:
         return black - white
@@ -142,7 +147,7 @@ def select_move_minimax(board, color):
     moves = {}
 
     for x in get_possible_moves(board, color):
-        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 3)
+        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 2)
 
 
     #sys.stderr.write(i, j)
