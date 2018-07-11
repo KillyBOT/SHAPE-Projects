@@ -28,12 +28,39 @@ def compute_utility(board, color):
                 black += 1
                 if row == 0 and column == 0:
                     black += 1
-                if row == len(board) and column == 0:
+                if row == len(board)-1 and column == 0:
                     black += 1
-                if row == 0 and column == len(board[row]):
+                if row == 0 and column == len(board[row])-1:
                     black += 1
-                if row == len(board) and column == len(board[row]):
+                if row == len(board)-1 and column == len(board[row])-1:
                     black += 1
+
+                if row == 1 and column == 1:
+                    black -= 1
+                if row == len(board)-2 and column == 1:
+                    black -= 1
+                if row == 1 and column == len(board[row])-2:
+                    black -= 1
+                if row == len(board)-2 and column == len(board[row])-2:
+                    black -= 1
+
+                if row == 0 and column == 1:
+                    black -= 1
+                if row == 1 and column == 0:
+                    black -= 1
+                if row == len(board)-2 and column == 0:
+                    black -= 1
+                if row == len(board) - 1 and column == 1:
+                    black -= 1
+                if row == 0 and column == len(board[row])-1:
+                    black -=1
+                if row == 1 and column == len(board[row])-2:
+                    black -= 1
+                if row == len(board) - 1 and column == len(board[row])-2:
+                    black -= 1
+                if row == len(board) - 2 and column == len(board[row])-1:
+                    black -= 1
+
             elif board[row][column] == 2:
                 white += 1
                 if row == 0 and column == 0:
@@ -43,7 +70,33 @@ def compute_utility(board, color):
                 if row == 0 and column == len(board[row]):
                     white += 1
                 if row == len(board) and column == len(board[row]):
-                    black += 1
+                    white += 1
+
+                if row == 1 and column == 1:
+                    white -= 1
+                if row == len(board)-2 and column == 1:
+                    white -= 1
+                if row == 1 and column == len(board[row])-2:
+                    white -= 1
+                if row == len(board)-2 and column== len(board[row])-2:
+                    white -= 1
+
+                if row == 0 and column == 1:
+                    white -= 1
+                if row == 1 and column == 0:
+                    white -= 1
+                if row == len(board)-2 and column == 0:
+                    white -= 1
+                if row == len(board) - 1 and column == 1:
+                    white -= 1
+                if row == 0 and column == len(board[row])-1:
+                    white -=1
+                if row == 1 and column == len(board[row])-2:
+                    white -= 1
+                if row == len(board) - 1 and column == len(board[row])-2:
+                    white -= 1
+                if row == len(board) - 2 and column == len(board[row])-1:
+                    white -= 1
     if color == 1:
         return black - white
     elif color == 2:
@@ -85,11 +138,11 @@ def select_move_minimax(board, color):
     moves = {}
 
     for x in get_possible_moves(board, color):
-        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 4)
+        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 3)
 
 
     #sys.stderr.write(i, j)
-    time.sleep(0.1)
+    time.sleep(0.05)
     return max(moves, key=moves.get)
     
 ############ ALPHA-BETA PRUNING #####################
