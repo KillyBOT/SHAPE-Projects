@@ -22,7 +22,7 @@ class OthelloGui(object):
         self.height = self.game.dimension
         self.width = self.game.dimension 
         
-        self.offset = 3
+        self.offset = 20
         self.cell_size = 50
 
         root = Tk()
@@ -30,12 +30,18 @@ class OthelloGui(object):
         root.lift()
         root.attributes("-topmost", True)
         self.root = root
-        self.canvas = Canvas(root,height = self.cell_size * self.height + self.offset,width = self.cell_size * self.width + self.offset)
+        self.canvas = Canvas(root,height = self.cell_size * self.height + self.offset*2,width = self.cell_size * self.width + self.offset*2, bg="black")
         self.move_label = Label(root)
         self.score_label = Label(root)
+        self.game_label = Label(root)
+        self.author_label = Label(root)
+        self.current_player_canvas = Canvas(root, height = self.cell_size + self.offset*2, width = self.cell_size + self.offset*2, bg="black")
         self.text = scrolledtext.ScrolledText(root, width=70, height=10)
-        self.move_label.pack(side="top")
+        self.game_label.pack(side="top")
+        self.author_label.pack(side="top")
         self.score_label.pack(side="top")
+        self.move_label.pack(side="top")
+        self.current_player_canvas.pack()
         self.canvas.pack()
         self.text.pack()
         self.draw_board()
@@ -96,20 +102,26 @@ class OthelloGui(object):
         self.canvas.mainloop()
 
     def draw_board(self):
-        self.draw_grid()
-        self.draw_disks()
-        player = "Dark" if self.game.current_player == 1 else "Light"
+        self.game_label["text"] = "Othello"
+        self.game_label["fg"] = "white"
+        self.game_label["bg"] = "black"
+        self.game_label["font"] = "Helvetica 72 bold"
+        self.draw_current_player()
+        player = "Player 1: Dark" if self.game.current_player == 1 else "Player 2: Light"
         self.move_label["text"]= player
         self.score_label["text"]= "Dark {} : {} Light".format(*get_score(self.game.board)) 
-   
+        self.draw_grid()
+        self.draw_disks()
+
     def log(self, msg, newline = True): 
         self.text.insert("end","{}{}".format(msg, "\n" if newline else ""))
         self.text.see("end")
  
     def draw_grid(self):
+        fillColor = "green"
         for i in range(self.height):
             for j in range(self.width):
-                self.canvas.create_rectangle(i*self.cell_size + self.offset, j*self.cell_size + self.offset, (i+1)*self.cell_size + self.offset, (j+1)*self.cell_size + self.offset, fill="dark green")
+                self.canvas.create_rectangle(i*self.cell_size + self.offset, j*self.cell_size + self.offset, (i+1)*self.cell_size + self.offset, (j+1)*self.cell_size + self.offset, fill=fillColor)
        
     def draw_disk(self, i,j, color):
         x = i * self.cell_size + self.offset
@@ -124,6 +136,12 @@ class OthelloGui(object):
                     self.draw_disk(j, i, "black")
                 elif self.game.board[i][j] == 2:
                     self.draw_disk(j, i, "white")
+
+    def draw_current_player(self):
+        player = "black" if self.game.current_player == 1 else "white"
+        padding = 3
+        self.current_player_canvas.create_rectangle(self.offset, self.offset, self.cell_size+self.offset, self.cell_size+self.offset, fill="dark green")
+        self.current_player_canvas.create_oval(self.offset+padding, self.offset+padding, self.cell_size + self.offset-padding, self.cell_size + self.offset -padding, fill="black" if self.game.current_player == 1 else "white")
 
 def main():
     

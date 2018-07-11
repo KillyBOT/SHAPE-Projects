@@ -20,7 +20,6 @@ from othello_shared import find_lines, get_possible_moves, get_score, play_move
 def compute_utility(board, color):
     black = 0
     white = 0
-    empty = 0
 
     for row in range(len(board)):
         for column in range(len(board[row])):
@@ -28,38 +27,38 @@ def compute_utility(board, color):
                 black += 1
                 
                 if row == 0 and column == 0:
-                    black += 1
-                if row == len(board)-1 and column == 0:
-                    black += 1
-                if row == 0 and column == len(board[row])-1:
-                    black += 1
-                if row == len(board)-1 and column == len(board[row])-1:
-                    black += 1
+                    black += 2
+                elif row == len(board)-1 and column == 0:
+                    black += 2
+                elif row == 0 and column == len(board[row])-1:
+                    black += 2
+                elif row == len(board)-1 and column == len(board[row])-1:
+                    black += 2
 
-                if row == 1 and column == 1:
+                elif row == 1 and column == 1:
                     black -= 1
-                if row == len(board)-2 and column == 1:
+                elif row == len(board)-2 and column == 1:
                     black -= 1
-                if row == 1 and column == len(board[row])-2:
+                elif row == 1 and column == len(board[row])-2:
                     black -= 1
-                if row == len(board)-2 and column == len(board[row])-2:
+                elif row == len(board)-2 and column == len(board[row])-2:
                     black -= 1
 
-                if row == 0 and column == 1:
+                elif row == 0 and column == 1:
                     black -= 1
-                if row == 1 and column == 0:
+                elif row == 1 and column == 0:
                     black -= 1
-                if row == len(board)-2 and column == 0:
+                elif row == len(board)-2 and column == 0:
                     black -= 1
-                if row == len(board) - 1 and column == 1:
+                elif row == len(board) - 1 and column == 1:
                     black -= 1
-                if row == 0 and column == len(board[row])-1:
+                elif row == 0 and column == len(board[row])-1:
                     black -=1
-                if row == 1 and column == len(board[row])-2:
+                elif row == 1 and column == len(board[row])-2:
                     black -= 1
-                if row == len(board) - 1 and column == len(board[row])-2:
+                elif row == len(board) - 1 and column == len(board[row])-2:
                     black -= 1
-                if row == len(board) - 2 and column == len(board[row])-1:
+                elif row == len(board) - 2 and column == len(board[row])-1:
                     black -= 1
             
 
@@ -67,44 +66,39 @@ def compute_utility(board, color):
                 white += 1
                 
                 if row == 0 and column == 0:
-                    white += 1
-                if row == len(board) and column == 0:
-                    white += 1
-                if row == 0 and column == len(board[row]):
-                    white += 1
-                if row == len(board) and column == len(board[row]):
-                    white += 1
+                    white += 2
+                elif row == len(board) and column == 0:
+                    white += 2
+                elif row == 0 and column == len(board[row]):
+                    white += 2
+                elif row == len(board) and column == len(board[row]):
+                    white += 2
 
                 if row == 1 and column == 1:
                     white -= 1
-                if row == len(board)-2 and column == 1:
+                elif row == len(board)-2 and column == 1:
                     white -= 1
-                if row == 1 and column == len(board[row])-2:
+                elif row == 1 and column == len(board[row])-2:
                     white -= 1
-                if row == len(board)-2 and column== len(board[row])-2:
+                elif row == len(board)-2 and column== len(board[row])-2:
                     white -= 1
 
-                if row == 0 and column == 1:
+                elif row == 0 and column == 1:
                     white -= 1
-                if row == 1 and column == 0:
+                elif row == 1 and column == 0:
                     white -= 1
-                if row == len(board)-2 and column == 0:
+                elif row == len(board)-2 and column == 0:
                     white -= 1
-                if row == len(board) - 1 and column == 1:
+                elif row == len(board) - 1 and column == 1:
                     white -= 1
-                if row == 0 and column == len(board[row])-1:
+                elif row == 0 and column == len(board[row])-1:
                     white -=1
-                if row == 1 and column == len(board[row])-2:
+                elif row == 1 and column == len(board[row])-2:
                     white -= 1
-                if row == len(board) - 1 and column == len(board[row])-2:
+                elif row == len(board) - 1 and column == len(board[row])-2:
                     white -= 1
-                if row == len(board) - 2 and column == len(board[row])-1:
+                elif row == len(board) - 2 and column == len(board[row])-1:
                     white -= 1
-
-    for x in get_possible_moves(board, 1):
-        black += 1
-    for x in get_possible_moves(board, 2):
-        white += 1
                     
     if color == 1:
         return black - white
@@ -147,7 +141,7 @@ def select_move_minimax(board, color):
     moves = {}
 
     for x in get_possible_moves(board, color):
-        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 2)
+        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 3)
 
 
     #sys.stderr.write(i, j)

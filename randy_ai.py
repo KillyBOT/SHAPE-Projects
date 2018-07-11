@@ -30,7 +30,7 @@ def select_move(board, color):
     moves = get_possible_moves(board, color) # returns a list of (column, row) tuples.
     i,j = random.choice(moves)
 
-    time.sleep(0.1) # Delay, so Randy doesn't look as simple as he really is.  
+    time.sleep(0.05) # Delay, so Randy doesn't look as simple as he really is.  
     return i,j 
 
 
