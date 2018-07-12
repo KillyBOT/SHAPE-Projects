@@ -113,82 +113,108 @@ class OthelloGameManager(object):
         return board
 
     def print_board(self):
-        for row in self.board: 
-            print(" ".join([str(x) for x in row]))
+
+        boardString = "  "
+
+        for column in range(len(self.board)):
+            boardString += (str(column) + " ")
+
+        boardString += '\n'
+        for row in range(len(self.board)): 
+            boardString += (str(row) + " ")
+            boardString += (" ".join([str(x) for x in self.board[row]]))
+            boardString += '\n'
+
+        return boardString
        
             
     def play(self, i,j):
         if self.board[j][i] != 0:
-           raise InvalidMoveError("Occupied square.")
-           #print("Occupied square.")
+           #raise InvalidMoveError("Occupied square.")
+           print("Occupied square")
+           return False
         lines = find_lines(self.board, i,j, self.current_player)
         if not lines:  
-           raise InvalidMoveError("Invalid Move.")
-           #print("Invalid move.")
+           #raise InvalidMoveError("Invalid Move.")
+           print("Invalid move.")
+           return False
         else:
      
             self.board = play_move(self.board, self.current_player, i, j) 
             self.current_player = 1 if self.current_player == 2 else 2
+            return True
 
     def get_possible_moves(self):
         return get_possible_moves(self.board, self.current_player)
 
-def play_game(game, player1, player2):
+    def play_game_multiplayer(game, player1, player2):
 
-    players = [None, player1, player2]
+        players = [None, player1, player2]
 
-    serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serverSocket.bind((host,port))
+        serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        serverSocket.bind((host,port))
 
-    serverSocket.listen(2)
-    conn, address = serverSocket.accept()
-    print("Got connection from " + str(address))
+        serverSocket.listen(2)
+        conn, address = serverSocket.accept()
+        print("Got connection from " + str(address))
 
-    while True: 
-        player_obj = players[game.current_player]
-        possible_moves = game.get_possible_moves() 
+        while True: 
+            player_obj = players[game.current_player]
+            possible_moves = game.get_possible_moves() 
 
-        if not possible_moves: 
-            p1score, p2score = get_score(game.board)
-            print("FINAL: {} (dark) {}:{} {} (light)".format(player1.name, p1score, p2score, player2.name))
-            player1.kill(game)
-            player2.kill(game)
-            serverSocket.close()
-            break 
-        else: 
-
-            color = "dark" if game.current_player == 1 else "light"
-            try: 
-                game.print_board()
-                i = int(input("Type row: "))
-                j = int(input("Type column: "))
-                #i, j = player_obj.get_move(game)
-                print("{} ({}) plays {},{}".format(player_obj.name, color, i,j))
-                game.play(i,j)
-
-                toSend = "Play move:"
-                conn.send(toSend.encode())
-
-                data = conn.recv(maxData)
-                decodedData = json.loads(data.decode())
-
-                otherI = decodedData["row"]
-                otherJ = decodedData["column"]
-                game.play(otherI, otherJ)
-                print("Other played: ", otherI, otherJ)
-
-            except AiTimeoutError:
-                print("{} ({}) timed out!".format(player_obj.name, color))
-                print("FINAL: {} (dark) {}:{} {} (light)".format(player_obj.name, p1score, p2score, player2.name))
+            if not possible_moves: 
+                p1score, p2score = get_score(game.board)
+                print("FINAL: {} (dark) {}:{} {} (light)".format(player1.name, p1score, p2score, player2.name))
                 player1.kill(game)
                 player2.kill(game)
                 serverSocket.close()
-                break
+                break 
+            else: 
+
+                color = "dark" if game.current_player == 1 else "light"
+                try: 
+                    print(game.print_board())
+
+                    hasPlayed = False
+
+                    while hasPlayed == False:
+                        i = int(input("Type row: "))
+                        j = int(input("Type column: "))
+                        #i, j = player_obj.get_move(game)
+                        hasPlayed = game.play(i,j)
+
+                    print("{} ({}) plays {},{}".format(player_obj.name, color, i,j))
+
+                    toSend = game.print_board()
+                    #toSend = ("Other played: " + str(i) + " " + str(j))
+                    toSend = json.dumps(toSend)
+                    conn.send(toSend.encode())
+
+                    otherHasPlayed = False
+
+                    while otherHasPlayed == False:
+                        data = conn.recv(maxData)
+                        decodedData = json.loads(data.decode())
+                        otherI = decodedData["row"]
+                        otherJ = decodedData["column"]
+                        otherHasPlayed = game.play(otherI, otherJ)
+                        otherHasPlayedData = 'no' if otherHasPlayed == False else 'yes'
+                        conn.send(otherHasPlayedData.encode())
+
+                    print("Other played: ", otherI, otherJ)
+
+                except AiTimeoutError:
+                    print("{} ({}) timed out!".format(player_obj.name, color))
+                    print("FINAL: {} (dark) {}:{} {} (light)".format(player_obj.name, p1score, p2score, player2.name))
+                    player1.kill(game)
+                    player2.kill(game)
+                    serverSocket.close()
+                    break
 
 
-     
-    
+         
+        
 
 if __name__ == "__main__":
 
@@ -209,4 +235,4 @@ if __name__ == "__main__":
         p2 = Player(2)
         game = OthelloGameManager(dimension=8)
     #gameManager = OthelloGameManager(game, p1, p2) 
-    play_game(game, p1, p2)
+    game.play_game_multiplayer(game, p1, p2)

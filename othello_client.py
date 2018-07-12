@@ -17,19 +17,30 @@ def main():
 	clientSocket = socket.socket()
 	clientSocket.connect((host,port))
 
-	i = input("Type row: ")
-	j = input("Type column: ")
+	while True:
 
-	while i.lower().strip() != 'quit' and j.lower().strip() != 'quit':
+		board = clientSocket.recv(maxData)
 
-		canGo = clientSocket.recv(maxData).decode()
-		print(str(canGo))
+		board = json.loads(board.decode())
 
-		data = json.dumps({'row' : int(i), 'column' : int(j)})
-		clientSocket.send(data.encode())
+		print(str(board))
 
-		i = input("Type row: ")
-		j = input("Type column: ")
+		hasPlayed = False
+
+		while hasPlayed == False:
+
+			i = input("Type row: ")
+			j = input("Type column: ")
+
+			data = json.dumps({'row' : int(i), 'column' : int(j)})
+			clientSocket.send(data.encode())
+
+			canGo = clientSocket.recv(maxData).decode()
+			#print(canGo)
+
+			if canGo == 'yes':
+				hasPlayed = True
+
 
 
 	clientSocket.close()
