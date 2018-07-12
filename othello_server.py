@@ -77,8 +77,8 @@ def play_game(game, player1, player2):
             except AiTimeoutError:
                 print("{} ({}) timed out!".format(player_obj.name, color))
                 print("FINAL: {} (dark) {}:{} {} (light)".format(player_obj.name, p1score, p2score, player2.name))
-                player1.kill(game)
-                player2.kill(game)
+                #player1.kill(game)
+                #player2.kill(game)
                 serverSocket.close()
                 break
 

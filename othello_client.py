@@ -23,8 +23,8 @@ def main():
 
 		while hasPlayed == False:
 
-			i = input("Type row: ")
-			j = input("Type column: ")
+			j = input("Type row: ")
+			i = input("Type column: ")
 
 			data = json.dumps({'row' : int(i), 'column' : int(j)})
 			clientSocket.send(data.encode())
