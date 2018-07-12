@@ -48,8 +48,8 @@ def play_game(game, player1, player2):
                 hasPlayed = False
 
                 while hasPlayed == False:
-                    i = int(input("Type row: "))
-                    j = int(input("Type column: "))
+                    j = int(input("Type row: "))
+                    i = int(input("Type column: "))
                     #i, j = player_obj.get_move(game)
                     hasPlayed = game.play(i,j)
 
