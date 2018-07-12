@@ -99,7 +99,12 @@ def compute_utility(board, color):
                     white -= 1
                 elif row == len(board) - 2 and column == len(board[row])-1:
                     white -= 1
-                    
+    
+    for x in get_possible_moves(board, 1):
+        black += 2
+    for x in get_possible_moves(board, 2):
+        white += 2
+
     if color == 1:
         return black - white
     elif color == 2:
@@ -141,7 +146,7 @@ def select_move_minimax(board, color):
     moves = {}
 
     for x in get_possible_moves(board, color):
-        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 3)
+        moves[x] = minimax_max_node( play_move(board, color, x[0], x[1]), color, 0, 2)
 
 
     #sys.stderr.write(i, j)
@@ -151,17 +156,56 @@ def select_move_minimax(board, color):
 ############ ALPHA-BETA PRUNING #####################
 
 #alphabeta_min_node(board, color, alpha, beta, level, limit)
-def alphabeta_min_node(board, color, alpha, beta): 
-    return None
+def alphabeta_min_node(board, color, alpha, beta, depth, maxdepth): 
+    if len(get_possible_moves(board, color)) <= 0 or depth > maxdepth:
+        return compute_utility(board, color)
+
+    childrenNodes = []
+    nowBeta = beta
+
+    for x in get_possible_moves(board, color):
+        if alpha >= nowBeta:
+            return nowBeta
+        childrenNodes.append(minimax_max_node( play_move(board, color, x[0], x[1]), color, depth + 1, maxdepth ))
+        if childrenNodes[-1] < nowBeta:
+            nowBeta = childrenNodes[-1]
+
+    #return min(childrenNodes)
+    return nowBeta
 
 
 #alphabeta_max_node(board, color, alpha, beta, level, limit)
-def alphabeta_max_node(board, color, alpha, beta):
-    return None
+def alphabeta_max_node(board, color, alpha, beta, depth, maxdepth):
+    if len(get_possible_moves(board, color)) <= 0 or depth > maxdepth:
+        return compute_utility(board, color)
+
+    childrenNodes = []
+    nowAlpha = alpha
+    for x in get_possible_moves(board, color):
+        if nowAlpha >= beta:
+            return nowAlpha
+        childrenNodes.append(alphabeta_min_node( play_move(board, color, x[0], x[1]), color, alpha, beta, depth + 1, maxdepth ))
+        if childrenNodes[-1] > nowAlpha:
+            nowAlpha = childrenNodes[-1]
+
+    #return max(childrenNodes) 
+    return nowAlpha
 
 
 def select_move_alphabeta(board, color): 
-    return 0,0 
+    moves = {}
+
+    alpha = -3000000000
+    beta = 3000000000
+
+    for x in get_possible_moves(board, color):
+        moves[x] = alphabeta_max_node( play_move(board, color, x[0], x[1]), color, alpha, beta, 0, 3)
+        if moves[x] > alpha:
+            alpha = moves[x]
+
+    #sys.stderr.write(i, j)
+    time.sleep(0.05)
+    return max(moves, key=moves.get)
 
 
 ####################################################
@@ -172,7 +216,8 @@ def run_ai():
     Then it repeatedly receives the current score and current board state
     until the game is over. 
     """
-    print("Minimax AI") # First line is the name of this AI  
+    #print("Minimax AI") # First line is the name of this AI 
+    print("Alpha Beta AI") 
     color = int(input()) # Then we read the color: 1 for dark (goes first), 
                          # 2 for light. 
 
@@ -196,7 +241,7 @@ def run_ai():
                                   # 2 : light disk (player 2)
                     
             # Select the move and send it to the manager 
-            movei, movej = select_move_minimax(board, color)
+            movei, movej = select_move_alphabeta(board, color)
             #movei, movej = select_move_alphabeta(board, color)
             print("{} {}".format(movei, movej)) 
 

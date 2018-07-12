@@ -85,7 +85,12 @@ class OthelloGui(object):
             self.game.play(i,j)
             self.draw_board()
             if not get_possible_moves(self.game.board, self.game.current_player):
-                self.shutdown("Game Over")
+                if get_score(self.game.board)[0] > get_score(self.game.board)[1]:
+                    self.shutdown("Dark wins!")
+                elif get_score(self.game.board)[0] < get_score(self.game.board)[1]:
+                    self.shutdown("White wins!")
+                else:
+                    self.shutdown("Tie!")
             elif isinstance(self.players[self.game.current_player], AiPlayerInterface):
                 self.root.after(1, lambda: self.ai_move())
             else: 
