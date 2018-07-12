@@ -1,10 +1,3 @@
-from tkinter import *
-from tkinter import scrolledtext
-
-from othello_game import OthelloGameManager, AiPlayerInterface, Player, InvalidMoveError, AiTimeoutError
-from othello_shared import get_possible_moves, get_score
-from othello_gui import *
-
 import socket
 import json
 
@@ -16,6 +9,7 @@ def main():
 
 	clientSocket = socket.socket()
 	clientSocket.connect((host,port))
+	print("Connected!")
 
 	while True:
 
