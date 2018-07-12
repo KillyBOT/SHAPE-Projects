@@ -13,6 +13,8 @@ from tkinter import scrolledtext
 from othello_game import OthelloGameManager, AiPlayerInterface, Player, InvalidMoveError, AiTimeoutError
 from othello_shared import get_possible_moves, get_score
 
+import sys, os
+
 class OthelloGui(object):
 
     def __init__(self, game_manager, player1, player2):
@@ -35,6 +37,7 @@ class OthelloGui(object):
         self.score_label = Label(root)
         self.game_label = Label(root)
         self.author_label = Label(root)
+        self.restart_button = Button(root)
         self.current_player_canvas = Canvas(root, height = self.cell_size + self.offset*2, width = self.cell_size + self.offset*2, bg="black")
         self.text = scrolledtext.ScrolledText(root, width=70, height=10)
         self.game_label.pack(side="top")
@@ -44,6 +47,7 @@ class OthelloGui(object):
         self.current_player_canvas.pack()
         self.canvas.pack()
         self.text.pack()
+        self.restart_button.pack()
         self.draw_board()
 
     def get_position(self,x,y):
@@ -111,12 +115,16 @@ class OthelloGui(object):
         self.game_label["fg"] = "white"
         self.game_label["bg"] = "black"
         self.game_label["font"] = "Helvetica 72 bold"
+
         self.draw_current_player()
         player = "Player 1: Dark" if self.game.current_player == 1 else "Player 2: Light"
         self.move_label["text"]= player
         self.score_label["text"]= "Dark {} : {} Light".format(*get_score(self.game.board)) 
         self.draw_grid()
         self.draw_disks()
+
+        self.restart_button["text"] = "Restart Game"
+        self.restart_button["command"] = self.restart_game
 
     def log(self, msg, newline = True): 
         self.text.insert("end","{}{}".format(msg, "\n" if newline else ""))
@@ -147,6 +155,10 @@ class OthelloGui(object):
         padding = 3
         self.current_player_canvas.create_rectangle(self.offset, self.offset, self.cell_size+self.offset, self.cell_size+self.offset, fill="dark green")
         self.current_player_canvas.create_oval(self.offset+padding, self.offset+padding, self.cell_size + self.offset-padding, self.cell_size + self.offset -padding, fill="black" if self.game.current_player == 1 else "white")
+
+    def restart_game(self):
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
 
 def main():
     
