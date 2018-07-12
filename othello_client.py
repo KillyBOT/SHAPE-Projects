@@ -9,7 +9,7 @@ import socket
 import json
 
 port = 5000
-host = socket.gethostname()
+host = "209.2.225.206"
 maxData = 4096
 
 def main():
@@ -40,6 +40,8 @@ def main():
 
 			if canGo == 'yes':
 				hasPlayed = True
+			elif canGo == 'quit':
+				break
 
 
 

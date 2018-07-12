@@ -19,7 +19,10 @@ def play_game(game, player1, player2):
 
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serverSocket.bind((host,port))
+    serverSocket.bind(('',port))
+
+    print("Starting server on port " + str(port))
+    print("Looking for player 2...")
 
     serverSocket.listen(2)
     conn, address = serverSocket.accept()
