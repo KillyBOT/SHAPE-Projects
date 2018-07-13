@@ -43,7 +43,10 @@ class OthelloGui(object):
         self.players = [None, player1, player2]
         self.height = self.game.dimension
         self.width = self.game.dimension 
-        
+
+        data = str(self.game.dimension)
+
+        self.conn.send(data.encode())
         self.isGameOver = False
 
         self.offset = 20
@@ -88,9 +91,10 @@ class OthelloGui(object):
             if hasPlayed == False:
                 self.log("Cannot play there")
             else:
+
                 self.log("{}: {},{}".format(player, i,j))
 
-            self.draw_board()
+            #self.log("Got play! Waiting for player 2...")
 
             if not get_possible_moves(self.game.board, self.game.current_player):
                 self.isGameOver = self.shutdown("Game Over")
@@ -99,6 +103,7 @@ class OthelloGui(object):
                 self.root.after(100,lambda: self.ai_move())
 
             if hasPlayed == True:
+                self.draw_board()
                 self.root.unbind("<Button-1>")
                 toSend = self.game.board
                 toSend = json.dumps(toSend)
@@ -111,15 +116,20 @@ class OthelloGui(object):
                     decodedData = json.loads(data.decode())
                     otherI = decodedData["row"]
                     otherJ = decodedData["column"]
+
+                    if otherI > self.game.dimension or otherJ > self.game.dimension:
+                        self.conn.send('no'.encode())
+
                     otherHasPlayed = self.game.play(otherI, otherJ)
                     otherHasPlayedData = 'no' if otherHasPlayed == False else 'yes'
                     otherHasPlayedData = 'quit' if self.isGameOver == True else otherHasPlayedData
                     self.conn.send(otherHasPlayedData.encode())
 
-                self.root.bind("<Button-1>",lambda e: self.mouse_pressed(e))
+                    self.log("Other played: {}, {}".format(otherI,otherJ))
 
-            self.draw_board()
-            self.canvas.mainloop()
+                self.root.bind("<Button-1>",lambda e: self.mouse_pressed(e))
+                self.draw_board()
+                self.canvas.mainloop()
 
         except InvalidMoveError:
             self.log("Invalid move. {},{}".format(i,j))
