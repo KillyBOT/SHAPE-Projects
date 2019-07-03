@@ -206,10 +206,10 @@ def manhattan_heuristic(state, goalState):
 
     for row in range(len(state)):
         for column in range(len(state[row])):
-            if state[row][column] != goalState[row][column] and state[row][column] != 0:
-                currentNumPos = get_num_position(state,goalState1[row][column])
-                amountOfMisplacedTiles += int(abs(zeroPos[0] - currentNumPos[0]))
-                amountOfMisplacedTiles += int(abs(zeroPos[1] - currentNumPos[1]))
+            if state[row][column] != goalState[row][column]:
+                desiredNumPos = get_num_position(state,goalState[row][column])
+                amountOfMisplacedTiles += int(abs(row - desiredNumPos[0]))
+                amountOfMisplacedTiles += int(abs(column- desiredNumPos[1]))
                 #print(goalState1[row][column])
                 #print(goalState2[row][column])
 
