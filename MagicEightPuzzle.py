@@ -1,33 +1,33 @@
-from tkinter import *
+#from tkinter import *
 import math
 import search_algorithms as sa
 import time
 
-master = Tk()
+# master = Tk()
 
-class GUI(object):
+# class GUI(object):
 
-	def __init__(self, state):
-		self.canvas = Canvas(master, width = 96, height=96)
-		self.canvas.pack()
-		self.state = state
+# 	def __init__(self, state):
+# 		self.canvas = Canvas(master, width = 96, height=96)
+# 		self.canvas.pack()
+# 		self.state = state
 
-		for row in range(len(self.state)):
-			for column in range(len(self.state[row])):
-				self.canvas.create_rectangle((column * 32), (row * 32), ((column + 1) * 32), ((row + 1) * 32), fill="grey")
-				self.canvas.create_text((column * 32) + 16, (row * 32) + 16, text=str(state[row][column]))
+# 		for row in range(len(self.state)):
+# 			for column in range(len(self.state[row])):
+# 				self.canvas.create_rectangle((column * 32), (row * 32), ((column + 1) * 32), ((row + 1) * 32), fill="grey")
+# 				self.canvas.create_text((column * 32) + 16, (row * 32) + 16, text=str(state[row][column]))
 
-		self.SolutionNum = Label(text = "0")
-		self.SolutionNum.pack(side = "right")
+# 		self.SolutionNum = Label(text = "0")
+# 		self.SolutionNum.pack(side = "right")
 
-		self.SolutionLabel = Label(text = "Solution:")
-		self.SolutionLabel.pack(side = "left")
+# 		self.SolutionLabel = Label(text = "Solution:")
+# 		self.SolutionLabel.pack(side = "left")
 
-		#self.ExpandedLabel = Label(text = "States Expanded:")
-		#self.ExpandedLabel.pack(side = "left")
+# 		#self.ExpandedLabel = Label(text = "States Expanded:")
+# 		#self.ExpandedLabel.pack(side = "left")
 
-	def run():
-		master.mainloop()
+# 	def run():
+# 		master.mainloop()
 
 	#def solveBFS()
 		
@@ -48,9 +48,9 @@ test_state_reversed = ((8,7,6),
 
 current_test_state = test_state_hard
 
-mainApp = GUI(current_test_state)
+#mainApp = GUI(current_test_state)
 
-GUI.run()
+#GUI.run()
 
 def PrintSearch():
 	print(sa.state_to_string(current_test_state))
@@ -105,4 +105,5 @@ def PrintSearch():
 	print("Total time for Greedy Best-First: {0:.3f}s".format(endBF-startBF))
 	print("Total time for A*: {0:.3f}s".format(end_astar-start_astar))
 
-#PrintSearch()
+if __name__ == "__main__":
+	PrintSearch()

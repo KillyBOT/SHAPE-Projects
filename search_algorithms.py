@@ -7,7 +7,7 @@ goalStates = [goalState1, goalState2]
 
 #Pick 0 for goal state 1, pick 1 for goal state 2
 
-goal = 1
+goal = 0
 
 def state_to_string(state):
     row_strings = [" ".join([str(cell) for cell in row]) for row in state]
@@ -112,14 +112,17 @@ def bfs(state):
 
     while goal_test(frontier[0]) == False:
         states_expanded += 1
-        max_frontier = len(frontier)
-        for newState in get_successors(frontier[0]):
+        if len(frontier) > max_frontier:
+            max_frontier = len(frontier)
+        current = frontier.pop(0)
+        for newState in get_successors(current):
             if newState[1] not in seen:
-                frontier.append(newState[1])
-                parents[newState[1]] = frontier[0]
+                parents[newState[1]] = current
                 seen.add(newState[1])
                 actions[newState[1]] = newState[0]
-        frontier.pop(0)
+                frontier.append(newState[1])
+
+
         if len(frontier) <= 0:
             return None, states_expanded, max_frontier
             break
@@ -312,6 +315,8 @@ def astar(state):
                 listOfActions.insert(0, actions[currentState])
                 currentState = parents[currentState]
 
+            print(listOfActions)
+
             return listOfActions, states_expanded, max_frontier
 
         for newState in get_successors(topOfStack):
@@ -343,10 +348,12 @@ def print_result(solution, states_expanded, max_frontier):
 def print_actions(solution, state):
 
     newState = state
+    currentStep = 0
 
     for action in range(len(solution)):
         zeroPos = get_zero_position(newState)
-        print("Step %d:" % (action+1))
+        currentStep+=1
+        print("Step %d:" % (currentStep))
         if solution[action] == "Up":
             newState = swap_cells(newState, zeroPos[0], zeroPos[1], zeroPos[0] - 1, zeroPos[1])
             print(state_to_string(newState))
@@ -363,3 +370,5 @@ def print_actions(solution, state):
             newState = swap_cells(newState, zeroPos[0], zeroPos[1], zeroPos[0], zeroPos[1] + 1)
             print(state_to_string(newState))
             print("Move Zero Right\n")
+
+        #print(state_to_string(action))
