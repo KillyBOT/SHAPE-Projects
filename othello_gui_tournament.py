@@ -10,10 +10,57 @@ This module contains a simple graphical user interface for Othello.
 from tkinter import *
 from tkinter import scrolledtext
 
-from othello_game import OthelloGameManager, AiPlayerInterface, Player, InvalidMoveError, AiTimeoutError
+from othello_game import OthelloGameManager, Player, InvalidMoveError, AiTimeoutError
 from othello_shared import get_possible_moves, get_score
 
-import sys, os
+import sys, os, time, random
+
+import subprocess
+from threading import Timer
+
+class AiPlayerInterface(Player):
+
+    TIMEOUT = 10
+
+    def __init__(self, filename, color):
+        self.color = color
+        self.process = subprocess.Popen(['python3',filename], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        name = self.process.stdout.readline().decode("ASCII").strip()
+        self.name = name
+        self.process.stdin.write((str(color)+"\n").encode("ASCII"))
+        self.process.stdin.flush()
+
+    def timeout(self): 
+        sys.stderr.write("{} timed out.".format(self.name))
+        self.process.kill() 
+        self.timed_out = True
+
+    def get_move(self, manager):
+        white_score, dark_score = get_score(manager.board)
+        self.process.stdin.write("SCORE {} {}\n".format(white_score, dark_score).encode("ASCII"))
+        self.process.stdin.flush()
+        self.process.stdin.write("{}\n".format(str(manager.board)).encode("ASCII"))
+        self.process.stdin.flush()
+
+        timer = Timer(AiPlayerInterface.TIMEOUT, lambda: self.timeout())
+        self.timed_out = False
+        timer.start()
+
+        # Wait for the AI call
+        move_s = self.process.stdout.readline().decode("ASCII") 
+
+        if self.timed_out:  
+            raise AiTimeoutError
+        timer.cancel()
+        i_s, j_s = move_s.strip().split()
+        i = int(i_s)
+        j = int(j_s)
+        return i,j 
+    
+    def kill(self):
+        #white_score, dark_score = get_score(manager.board)
+        #self.process.stdin.write("FINAL {} {}\n".format(white_score, dark_score).encode("ASCII"))
+        self.process.kill() 
 
 class OthelloGui(object):
 
@@ -26,6 +73,8 @@ class OthelloGui(object):
         
         self.offset = 20
         self.cell_size = 50
+
+        self.isOver = False
 
         root = Tk()
         root.wm_title("Othello")
@@ -75,9 +124,10 @@ class OthelloGui(object):
         self.move_label["text"] = text 
         self.root.unbind("<Button-1>")
         if isinstance(self.players[1], AiPlayerInterface): 
-            self.players[1].kill(self.game)
+            self.players[1].kill()
         if isinstance(self.players[2], AiPlayerInterface): 
-            self.players[2].kill(self.game)
+            self.players[2].kill()
+        self.isOver = True
  
     def ai_move(self):
         player_obj = self.players[self.game.current_player]
@@ -100,16 +150,30 @@ class OthelloGui(object):
             else: 
                 self.root.bind("<Button-1>",lambda e: self.mouse_pressed(e))        
         except AiTimeoutError:
-            self.shutdown("Game Over, {} lost (timeout)".format(player_obj.name))
+            self.log("{} timed out!".format(player_obj.name))
+            print(self.game.board)
+
+            for x in range(len(self.game.board)):
+                for y in range(len(self.game.board)):
+                    self.game.board[x][y] = 1 if self.game.current_player == 2 else 2
+
+            self.isOver = True
 
     def run(self):
         if isinstance(self.players[1], AiPlayerInterface):
             self.root.after(10, lambda: self.ai_move())
         else: 
             self.root.bind("<Button-1>",lambda e: self.mouse_pressed(e))
-     
-        self.draw_board()
-        self.canvas.mainloop()
+
+        while self.isOver == False: 
+            self.draw_board()
+            self.canvas.update()
+
+        self.isOver = True
+        #self.shutdown("Game Over")
+        time.sleep(4)
+        self.root.destroy()
+        return get_score(self.game.board)
 
     def draw_board(self):
         self.game_label["text"] = "Othello"
@@ -162,25 +226,99 @@ class OthelloGui(object):
         os.execl(python, python, * sys.argv)
 
 def main():
+
+    players = []
+    playerRanking = []
+    gameSize = int(sys.argv[1])
+    currentRound = 0
     
-    if len(sys.argv) == 4:
-        game = OthelloGameManager(dimension=int(sys.argv[1]))
-        p1 = AiPlayerInterface(sys.argv[2],1)
-        p2 = AiPlayerInterface(sys.argv[3],2)
-    elif len(sys.argv) == 3:
-        game = OthelloGameManager(dimension=int(sys.argv[1]))
-        p1 = Player(1)
-        p2 = AiPlayerInterface(sys.argv[2],2)
-    elif len(sys.argv) == 2: 
-        p1 = Player(1)
-        p2 = Player(2)
-        game = OthelloGameManager(dimension=int(sys.argv[1]))
-    else:
-        p1 = Player(1)
-        p2 = Player(2)
-        game = OthelloGameManager(dimension=8)
-    gui = OthelloGui(game, p1, p2) 
-    gui.run()
+    for arg in sys.argv[2:]:
+        players.append(arg)
+
+    while len(players) > 1:
+        nextPlayers = []
+
+        print(" === Round {} : Current Contenders === ".format(str(currentRound)))
+        currentAI = None
+        for elem in players:
+            currentAI = AiPlayerInterface(elem, 1)
+            print(currentAI.name)
+            currentAI.kill()
+
+        print()
+        while len(players) > 0:
+            if len(players) == 1:
+                nextPlayers.append(players.pop())
+                break
+
+            print("████████████████████████████████████████████████████████████████████████████████")
+
+            random.shuffle(players)
+
+            player1= players.pop()
+            player2 = players.pop()
+
+            player1Interface = AiPlayerInterface(player1,1)
+            player1Name = player1Interface.name
+            player1Interface.kill()
+
+            player2Interface = AiPlayerInterface(player2,2)
+            player2Name = player2Interface.name
+            player2Interface.kill()
+
+            print("Now: {} vs. {}!".format(player1Name,player2Name))
+
+            time.sleep(5)
+
+            game1 = OthelloGui(OthelloGameManager(dimension=gameSize), AiPlayerInterface(player1,1), AiPlayerInterface(player2,2))
+            scores1 = game1.run()
+
+            print("Current Score: {} : {} ; {} : {}".format(game1.players[1].name,scores1[0],game1.players[2].name,scores1[1]))
+
+            time.sleep(5)
+
+            game2 = OthelloGui(OthelloGameManager(dimension=gameSize), AiPlayerInterface(player2,1), AiPlayerInterface(player1,2))
+            scores2 = game2.run()
+
+            player1Score = scores1[0] + scores2[1]
+            player2Score = scores1[1] + scores2[0]
+
+            print("Final Score: {} : {} ; {} : {}".format(game1.players[1].name,player1Score,game1.players[2].name,player2Score))
+
+            winner = None
+            winnerName = None
+            loserName = None
+
+            if player1Score > player2Score:
+                winner = player1
+                winnerName = player1Name
+                loserName = player2Name
+            elif player2Score > player1Score:
+                winner = player2
+                winnerName = player2Name
+                loserName = player1Name
+            
+            if winner == None:
+                print("Tie! Both go to next round...")
+                nextPlayer.append(player1)
+                nextPlayer.append(player2)
+            else:
+                print("{} wins! {} goes to the next round.".format(winnerName,winnerName))
+                nextPlayers.append(winner)
+                playerRanking.insert(0, loserName)
+
+            time.sleep(5)
+
+        players = nextPlayers
+        currentRound+=1
+
+    currentAI = AiPlayerInterface(players[0],1)
+    playerRanking.insert(0, currentAI.name)
+    currentAI.kill()
+    print("{} is the champion! Congratulations!!!".format(playerRanking[0]))
+    print(" === Final rankings === ")
+    for x in range(0, len(playerRanking)):
+        print("{} : {}".format(x+1,playerRanking[x]))
 
 if __name__ == "__main__":
     main()

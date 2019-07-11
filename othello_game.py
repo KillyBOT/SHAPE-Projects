@@ -15,6 +15,7 @@ from othello_shared import find_lines, get_possible_moves, play_move, get_score
 
 import json
 import socket
+import numpy as np
 
 port = 5000
 host = socket.gethostname()
@@ -26,7 +27,6 @@ class InvalidMoveError(RuntimeError):
 
 class AiTimeoutError(RuntimeError):
     pass
-
 
 class Player(object):
     def __init__(self, color, name="Human"):
@@ -41,13 +41,12 @@ class Player(object):
 
 class AiPlayerInterface(Player):
 
-    TIMEOUT = 20
+    TIMEOUT = 10
 
     def __init__(self, filename, color):
         self.color = color
-        self.process = subprocess.Popen(['python',filename], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        self.process = subprocess.Popen(['python3',filename], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         name = self.process.stdout.readline().decode("ASCII").strip()
-        print("AI introduced itself as: {}".format(name))
         self.name = name
         self.process.stdin.write((str(color)+"\n").encode("ASCII"))
         self.process.stdin.flush()
@@ -83,7 +82,6 @@ class AiPlayerInterface(Player):
         white_score, dark_score = get_score(manager.board)
         self.process.stdin.write("FINAL {} {}\n".format(white_score, dark_score).encode("ASCII"))
         self.process.kill() 
-
 
 class OthelloGameManager(object):
 
@@ -142,6 +140,14 @@ class OthelloGameManager(object):
      
             self.board = play_move(self.board, self.current_player, i, j) 
             self.current_player = 1 if self.current_player == 2 else 2
+            """matrix = []
+            #sys.stdout.write(str(board))
+            for row in self.board:
+                matrix.append(np.array(row))
+
+            matrix = np.array(matrix)
+            unique, counts = np.unique(matrix, return_counts = True)
+            print(counts[1],counts[2])"""
             return True
 
     def get_possible_moves(self):
@@ -235,4 +241,4 @@ if __name__ == "__main__":
         p2 = Player(2)
         game = OthelloGameManager(dimension=8)
     #gameManager = OthelloGameManager(game, p1, p2) 
-    game.play_game_multiplayer(game, p1, p2)
+    game.play_game(game, p1, p2)
